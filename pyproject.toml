@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "project2-razumeyko-anna-m25-555"
+version = "0.1.0"
+description = "Учебный проект: примитивная база данных (CRUD)"
+authors = [ "Anna Razumeyko karasiklife@gmail.com"]
+readme = "README.md"
+packages = [{ include = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+prettytable = "^3.10.0"
+prompt = "^0.4.1"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.6.9"
+pytest = "^8.0.0"
+
+[tool.poetry.scripts]
+project = "src.primitive_db.main:main"
+database = "src.primitive_db.main:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+exclude = ["venv", ".venv", "dist", "__pycache__"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = []
