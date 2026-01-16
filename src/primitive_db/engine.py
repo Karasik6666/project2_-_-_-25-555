@@ -19,14 +19,29 @@ def welcome() -> None:
 def _print_help() -> None:
     print("***База данных***")
     print("Функции:")
-    print("<command> create_table <имя_таблицы> <столбец1:тип> <столбец2:тип> .. - создать таблицу")
+    print(
+        "<command> create_table <имя_таблицы> <столбец1:тип> <столбец2:тип> .. - "
+        "создать таблицу"
+    )
     print("<command> list_tables - показать список всех таблиц")
-    print("<command> drop_table <имя_таблицы> - удалить таблицу")
-    print("<command> insert into <имя_таблицы> values (<значение1>, <значение2>, ...) - создать запись.")
-    print("<command> select from <имя_таблицы> where <столбец> = <значение> - прочитать записи по условию.")
+    print('<command> drop_table <имя_таблицы> - удалить таблицу')
+    print(
+        "<command> insert into <имя_таблицы> values (<значение1>, <значение2>, ...) - "
+        "создать запись."
+    )
+    print(
+        "<command> select from <имя_таблицы> where <столбец> = <значение> - "
+        "прочитать записи по условию."
+    )
     print("<command> select from <имя_таблицы> - прочитать все записи.")
-    print("<command> update <имя_таблицы> set <столбец1> = <новое_значение1> where <столбец_условия> = <значение_условия> - обновить запись.")
-    print("<command> delete from <имя_таблицы> where <столбец> = <значение> - удалить запись.")
+    print(
+        "<command> update <имя_таблицы> set <столбец1> = <новое_значение1> where "
+        "<столбец_условия> = <значение_условия> - обновить запись."
+    )
+    print(
+        "<command> delete from <имя_таблицы> where <столбец> = <значение> - "
+        "удалить запись."
+    )
     print("<command> info <имя_таблицы> - вывести информацию о таблице.")
     print("<command> exit - выход из программы")
     print("<command> help - справочная информация")
@@ -82,7 +97,7 @@ def run() -> None:
             updated = core.create_table(metadata, table_name, columns)
             if updated is not None:
                 save_metadata(updated)
-                cache_result.clear()  # type: ignore[attr-defined]
+                cache_result.clear() 
             continue
 
         if cmd0 == "drop_table":
@@ -134,7 +149,11 @@ def run() -> None:
                 print(f"Некорректное значение: {user_input}. Попробуйте снова.")
                 continue
 
-            key = ("select", table_name, tuple(sorted(where.items())) if where else None)
+            key = (
+                "select", 
+                table_name, 
+                tuple(sorted(where.items())) if where else None
+            )
             cache_result(key, lambda: core.select(metadata, table_name, where))
             continue
 
