@@ -150,15 +150,13 @@ def run() -> None:
                 print(f"Некорректное значение: {user_input}. Попробуйте снова.")
                 continue
 
-            key = (
-                "select",
-                table_name,
-                tuple(sorted(where.items())) if where else None,
-            )
+            where_key = tuple(sorted(where.items())) if where is not None else None
+            key = ("select", table_name, where_key)
 
             def _on_cache_hit(rows: list[dict[str, Any]] | None) -> None:
                 if rows is None:
                     return
+                print("[CACHE] Результат извлечен из кэша.")
                 schema = core.schema_for_table(metadata, table_name)
                 core.print_rows(schema, rows)
 

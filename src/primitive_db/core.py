@@ -28,10 +28,9 @@ def print_rows(schema: list[dict[str, str]], rows: list[dict[str, Any]]) -> None
     headers = [c["name"] for c in schema]
     table = PrettyTable()
     table.field_names = headers
-    for r in rows:
-        table.add_row([r.get(h) for h in headers])
+    for row in rows:
+        table.add_row([row.get(h) for h in headers])
     print(table)
-
 
 @handle_db_errors
 def create_table(
@@ -127,13 +126,13 @@ def select(
     schema = schema_for_table(metadata, table_name)
     rows = load_table_data(table_name)
 
-    if where:
+    if where is not None:
         (wcol, wval_raw), = where.items()
         col_types = {c["name"]: c["type"] for c in schema}
         if wcol not in col_types:
             raise ValueError(f"Некорректное значение: {wcol}. Попробуйте снова.")
         wval = cast_value(wval_raw, col_types[wcol])
-        rows = [r for r in rows if r.get(wcol) == wval]
+        rows = [row for row in rows if row.get(wcol) == wval]
 
     print_rows(schema, rows)
     return rows

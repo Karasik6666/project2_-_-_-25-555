@@ -125,6 +125,14 @@ def cast_value(value: object, target_type: str) -> Any:
                 ) from e
         raise ValueError(f"Некорректное значение: {value}. Попробуйте снова.")
 
+    if target_type == "str":
+        if isinstance(value, str):
+            v = value.strip()
+            if len(v) >= 2 and ((v[0] == v[-1] == '"') or (v[0] == v[-1] == "'")):
+                return v[1:-1]
+            return v
+        return str(value)
+
     if isinstance(value, str):
         return value
     return str(value)
