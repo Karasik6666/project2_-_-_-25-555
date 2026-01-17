@@ -27,12 +27,14 @@ def table_path(table_name: str) -> Path:
 
 
 def load_metadata() -> dict[str, list[dict[str, str]]]:
-    path = metadata_path()
-    if not path.exists():
+    try:
+        raw = metadata_path().read_text(encoding="utf-8").strip()
+    except FileNotFoundError:
         return {}
-    raw = path.read_text(encoding="utf-8").strip()
+
     if not raw:
         return {}
+
     data = json.loads(raw)
     if not isinstance(data, dict):
         raise ValueError("Некорректная структура metadata")
@@ -40,27 +42,39 @@ def load_metadata() -> dict[str, list[dict[str, str]]]:
 
 
 def save_metadata(metadata: dict[str, list[dict[str, str]]]) -> None:
-    metadata_path().write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8")
+    # Сериализация метаданных выполняется в читаемом формате (indent) 
+    # для удобства контроля
+    content = json.dumps(metadata, ensure_ascii=False, indent=2)
+    metadata_path().write_text(content, encoding="utf-8")
 
 
 def load_table_data(table_name: str) -> list[dict[str, Any]]:
-    path = table_path(table_name)
-    if not path.exists():
+    # Отсутствие файла таблицы интерпретируется как отсутствие записей.
+    try:
+        raw = table_path(table_name).read_text(encoding="utf-8").strip()
+    except FileNotFoundError:
         return []
-    raw = path.read_text(encoding="utf-8").strip()
+
     if not raw:
         return []
+
     data = json.loads(raw)
     if not isinstance(data, list):
         raise ValueError("Некорректная структура данных таблицы")
+
     return data
 
 
 def save_table_data(table_name: str, data: list[dict[str, Any]]) -> None:
-    table_path(table_name).write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    # Данные таблицы сохраняются в JSON с отключением ASCII-экранирования
+    content = json.dumps(data, ensure_ascii=False, indent=2)
+    table_path(table_name).write_text(content, encoding="utf-8")
 
 
-def schema_for_table(metadata: dict[str, list[dict[str, str]]], table_name: str) -> list[dict[str, str]]:
+def schema_for_table(
+    metadata: dict[str, list[dict[str, str]]],
+    table_name: str,
+) -> list[dict[str, str]]:
     if table_name not in metadata:
         raise KeyError(f'Ошибка: Таблица "{table_name}" не существует.')
     schema = metadata[table_name]
@@ -106,7 +120,9 @@ def cast_value(value: object, target_type: str) -> Any:
             try:
                 return int(value.strip())
             except ValueError as e:
-                raise ValueError(f"Некорректное значение: {value}. Попробуйте снова.") from e
+                raise ValueError(
+                    f"Некорректное значение: {value}. Попробуйте снова."
+                ) from e
         raise ValueError(f"Некорректное значение: {value}. Попробуйте снова.")
 
     if isinstance(value, str):

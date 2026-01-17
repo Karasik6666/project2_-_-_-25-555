@@ -16,6 +16,7 @@ from .utils import (
 )
 
 
+# ID формируется как (max(ID) + 1) по текущим данным таблицы
 def _next_id(rows: list[dict[str, Any]]) -> int:
     if not rows:
         return 1
@@ -23,8 +24,21 @@ def _next_id(rows: list[dict[str, Any]]) -> int:
     return (max(ids) + 1) if ids else 1
 
 
+def print_rows(schema: list[dict[str, str]], rows: list[dict[str, Any]]) -> None:
+    headers = [c["name"] for c in schema]
+    table = PrettyTable()
+    table.field_names = headers
+    for r in rows:
+        table.add_row([r.get(h) for h in headers])
+    print(table)
+
+
 @handle_db_errors
-def create_table(metadata: dict[str, list[dict[str, str]]], table_name: str, columns: list[str]) -> dict[str, list[dict[str, str]]] | None:
+def create_table(
+    metadata: dict[str, list[dict[str, str]]],
+    table_name: str,
+    columns: list[str],
+) -> dict[str, list[dict[str, str]]] | None:
     if table_name in metadata:
         raise ValueError(f'Ошибка: Таблица "{table_name}" уже существует.')
 
@@ -43,7 +57,10 @@ def create_table(metadata: dict[str, list[dict[str, str]]], table_name: str, col
 
 @handle_db_errors
 @confirm_action("удаление таблицы")
-def drop_table(metadata: dict[str, list[dict[str, str]]], table_name: str) -> dict[str, list[dict[str, str]]] | None:
+def drop_table(
+    metadata: dict[str, list[dict[str, str]]],
+    table_name: str,
+) -> dict[str, list[dict[str, str]]] | None:
     if table_name not in metadata:
         raise KeyError(f'Ошибка: Таблица "{table_name}" не существует.')
 
@@ -58,9 +75,8 @@ def drop_table(metadata: dict[str, list[dict[str, str]]], table_name: str) -> di
 
 @handle_db_errors
 def list_tables(metadata: dict[str, list[dict[str, str]]]) -> None:
-    print("-")
     for name in sorted(metadata.keys()):
-        print(name)
+        print(f"- {name}")
 
 
 @handle_db_errors
@@ -77,7 +93,11 @@ def info(metadata: dict[str, list[dict[str, str]]], table_name: str) -> None:
 
 @handle_db_errors
 @log_time
-def insert(metadata: dict[str, list[dict[str, str]]], table_name: str, values: list[str]) -> int | None:
+def insert(
+    metadata: dict[str, list[dict[str, str]]],
+    table_name: str,
+    values: list[str],
+) -> int | None:
     schema = schema_for_table(metadata, table_name)
     expected = len(schema) - 1
     if len(values) != expected:
@@ -99,7 +119,11 @@ def insert(metadata: dict[str, list[dict[str, str]]], table_name: str, values: l
 
 @handle_db_errors
 @log_time
-def select(metadata: dict[str, list[dict[str, str]]], table_name: str, where: dict[str, Any] | None = None) -> list[dict[str, Any]] | None:
+def select(
+    metadata: dict[str, list[dict[str, str]]],
+    table_name: str,
+    where: dict[str, Any] | None = None,
+) -> list[dict[str, Any]] | None:
     schema = schema_for_table(metadata, table_name)
     rows = load_table_data(table_name)
 
@@ -111,13 +135,7 @@ def select(metadata: dict[str, list[dict[str, str]]], table_name: str, where: di
         wval = cast_value(wval_raw, col_types[wcol])
         rows = [r for r in rows if r.get(wcol) == wval]
 
-    headers = [c["name"] for c in schema]
-    table = PrettyTable()
-    table.field_names = headers
-    for r in rows:
-        table.add_row([r.get(h) for h in headers])
-
-    print(table)
+    print_rows(schema, rows)
     return rows
 
 
@@ -158,7 +176,10 @@ def update(
     save_table_data(table_name, rows)
 
     if len(updated_ids) == 1:
-        print(f'Запись с ID={updated_ids[0]} в таблице "{table_name}" успешно обновлена.')
+        print(
+            f'Запись с ID={updated_ids[0]} в таблице "{table_name}" '
+            "успешно обновлена."
+        )
     else:
         print(f'Обновлено {len(updated_ids)} записей в таблице "{table_name}".')
     return len(updated_ids)
@@ -166,7 +187,11 @@ def update(
 
 @handle_db_errors
 @confirm_action("удаление записи")
-def delete(metadata: dict[str, list[dict[str, str]]], table_name: str, where_clause: dict[str, Any]) -> int | None:
+def delete(
+    metadata: dict[str, list[dict[str, str]]],
+    table_name: str,
+    where_clause: dict[str, Any],
+) -> int | None:
     schema = schema_for_table(metadata, table_name)
     rows = load_table_data(table_name)
     col_types = {c["name"]: c["type"] for c in schema}
@@ -192,7 +217,9 @@ def delete(metadata: dict[str, list[dict[str, str]]], table_name: str, where_cla
     save_table_data(table_name, kept)
 
     if len(deleted_ids) == 1:
-        print(f'Запись с ID={deleted_ids[0]} успешно удалена из таблицы "{table_name}".')
+        print(
+            f'Запись с ID={deleted_ids[0]} успешно удалена из таблицы "{table_name}".'
+        )
     else:
         print(f'Удалено {len(deleted_ids)} записей из таблицы "{table_name}".')
     return len(deleted_ids)

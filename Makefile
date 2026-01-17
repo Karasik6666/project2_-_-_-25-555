@@ -1,10 +1,13 @@
-.PHONY: install project build publish package-install lint
+.PHONY: install project database build publish package-install lint
 
 install:
 	poetry install
 
 project:
 	poetry run project
+
+database:
+	poetry run database
 
 build:
 	poetry build

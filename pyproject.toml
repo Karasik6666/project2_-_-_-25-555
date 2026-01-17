@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Учебный проект: примитивная база данных (CRUD)"
 authors = [ "Anna Razumeyko <karasiklife@gmail.com>"]
 readme = "README.md"
-packages = [{ include = "src" }]
+packages = [{ include = "primitive_db", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -16,8 +16,8 @@ ruff = "^0.6.9"
 pytest = "^8.0.0"
 
 [tool.poetry.scripts]
-project = "src.primitive_db.main:main"
-database = "src.primitive_db.main:main"
+project = "primitive_db.main:main"
+database = "primitive_db.main:main"
 
 [build-system]
 requires = ["poetry-core"]
