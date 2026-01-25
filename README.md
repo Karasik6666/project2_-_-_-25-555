@@ -28,7 +28,7 @@
 
 ## Демонстрация работы
 
-[![asciinema] https://asciinema.org/connect/5f69fe90-53cb-4787-82ae-85d5f56ba1f8
+[![asciinema](https://asciinema.org/a/sScuXKIiAkLXsSsq.svg)](https://asciinema.org/a/sScuXKIiAkLXsSsq)
 
 ## Требования
 
